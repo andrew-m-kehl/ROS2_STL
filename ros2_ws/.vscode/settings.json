@@ -1,0 +1,5 @@
+{
+    "cmake.sourceDirectory": "/home/Andy/Desktop/CodingFiles/Robotics/ros2_ws/src/my_package",
+    "cmake.ignoreCMakeListsMissing": true,
+    "git.ignoreLimitWarning": true
+}

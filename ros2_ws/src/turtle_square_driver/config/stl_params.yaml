@@ -1,0 +1,6 @@
+stl_processor:
+    ros__parameters:
+      step1_formula: |
+                      phi1 := in_bounds
+                      phi2 := ev_[0.0, 2.0] in_bounds 
+      #step2_formula: "phi2 := ev_[0.0, 2.0] in_bounds"

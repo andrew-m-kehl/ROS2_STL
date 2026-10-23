@@ -1,0 +1,13 @@
+  /**:
+    ros__parameters:
+      # Square
+      waypoints_x: [2.5, 8.5, 8.5, 2.5]
+      waypoints_y: [2.5, 2.5, 8.5, 8.5]
+
+      # # Triangle
+      # waypoints_x: [2.0, 9.0, 5.5]
+      # waypoints_y: [2.0, 2.0, 9.0]
+
+      # # Star
+      # waypoints_x: [2.5, 5.5, 8.5, 2.0, 9.0]
+      # waypoints_y: [2.5, 9.0, 2.5, 7.0, 7.0]
