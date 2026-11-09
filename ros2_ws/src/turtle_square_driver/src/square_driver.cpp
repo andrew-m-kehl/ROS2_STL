@@ -7,7 +7,7 @@
 
 using namespace std::chrono_literals;
 
-#define MAXSPEED 2
+#define MAXSPEED 6
 
 struct Point {
     double x, y;

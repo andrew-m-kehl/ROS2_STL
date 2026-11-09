@@ -6,7 +6,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Define the paths to your YAML parameter files
     waypoints_path = os.path.join(
-        get_package_share_directory('turtle_square_driver'), 'config', 'waypoints.yaml'
+        get_package_share_directory('turtle_square_driver'), 'config', 'stl_params.yaml'
     )
     stl_params_path = os.path.join(
         get_package_share_directory('turtle_square_driver'), 'config', 'stl_params.yaml'
@@ -25,13 +25,13 @@ def generate_launch_description():
             output='screen',
             parameters=[waypoints_path]  # Pass waypoints to the driver
         ),
-        Node(
-            package='turtle_square_driver', 
-            executable='manual_driver',
-            name='manual_driver',
-            output='screen',
-            prefix=['gnome-terminal -- '] 
-        ),
+        # Node(
+        #     package='turtle_square_driver', 
+        #     executable='manual_driver',
+        #     name='manual_driver',
+        #     output='screen',
+        #     prefix=['gnome-terminal -- '] 
+        # ),
         Node(
             package='turtle_square_driver',
             executable='stl_processor',

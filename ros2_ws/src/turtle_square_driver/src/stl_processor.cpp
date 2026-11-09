@@ -2,7 +2,7 @@
 #include <turtlesim/msg/pose.hpp>
 #include <std_msgs/msg/float32_multi_array.hpp>
 #include <string>
-
+#include <vector>
 #include "stl_driver.h"
 
 class STLProcessor : public rclcpp::Node {
@@ -15,11 +15,14 @@ public:
         waypoints_x_ = this->get_parameter("waypoints_x").as_double_array();
         waypoints_y_ = this->get_parameter("waypoints_y").as_double_array();
 
-        // 2. Load Formulas
-        this->declare_parameter<std::string>("step1_formula", "");
-        this->declare_parameter<std::string>("step2_formula", "");
-        std::string step1 = this->get_parameter("step1_formula").as_string();
-        // std::string step2 = this->get_parameter("step2_formula").as_string();
+        // 2. Load Dynamic Formulas
+        this->declare_parameter("phi_names", std::vector<std::string>{});
+        this->declare_parameter("phi_formulas", std::vector<std::string>{});
+        this->declare_parameter("phi_lookaheads", std::vector<double>{});
+
+        phi_names_ = this->get_parameter("phi_names").as_string_array();
+        std::vector<std::string> formulas = this->get_parameter("phi_formulas").as_string_array();
+        phi_lookaheads_ = this->get_parameter("phi_lookaheads").as_double_array();
 
         // 3. Dynamically Construct the STLRom Base Logic
         std::string base_logic = "signal x, y\n";
@@ -41,13 +44,15 @@ public:
         }
         base_logic += in_bounds_def + "\n";
 
-        // Combine everything into one string
-        std::string full_logic = base_logic + step1;
-        // std::string full_logic = base_logic + step1 + "\n" + step2;
-        RCLCPP_INFO(this->get_logger(), "--- Constructed STL Logic ---\n%s", full_logic.c_str());
+        // Append all dynamic formulas
+        for (const auto& f : formulas) {
+            base_logic += f;
+        }
+
+        RCLCPP_INFO(this->get_logger(), "--- Constructed STL Logic ---\n%s", base_logic.c_str());
         
-        // 4. Initialize SINGLE STLRom engine
-        driver_.parse_string(full_logic);
+        // 4. Initialize STLRom engine
+        driver_.parse_string(base_logic);
 
         pose_sub_ = this->create_subscription<turtlesim::msg::Pose>(
             "/turtle1/pose", 10, std::bind(&STLProcessor::pose_callback, this, std::placeholders::_1));
@@ -70,38 +75,46 @@ private:
         }
         
         if (in_zone && !was_in_zone_) {
-            RCLCPP_INFO(this->get_logger(), "IN");
+            RCLCPP_INFO(this->get_logger(), "IN at time: %.3fs", current_sim_time_);
             was_in_zone_ = true;
         } else if (!in_zone && was_in_zone_) {
-            RCLCPP_INFO(this->get_logger(), "OUT");
+            RCLCPP_INFO(this->get_logger(), "OUT at time: %.3fs", current_sim_time_);
             was_in_zone_ = false;
         }
 
-        // --- 2. Temporal Logic Evaluation using SINGLE STLRom Engine ---
+        // --- 2. Temporal Logic Evaluation ---
         std::vector<double> sample = {current_sim_time_, msg->x, msg->y};
-        driver_.add_sample(sample); // Add data only once
+        driver_.add_sample(sample);
 
-        float rob1 = 0.0f;
-        float rob2 = 0.0f;
+        // Build the dynamic data array (Index 0 = time, 1...N = satisfaction scores)
+        std::vector<float> metrics_data;
+        metrics_data.push_back(static_cast<float>(current_sim_time_));
 
-        // Query by the unique names defined in the YAML
-        try { rob1 = driver_.get_online_rob("phi1", current_sim_time_)[0]; } catch (...) {}
-        try { rob2 = driver_.get_online_rob("phi2", std::max(0.0, current_sim_time_ - 2.0))[0]; } catch (...) {}
+        for (size_t i = 0; i < phi_names_.size(); ++i) {
+            float rob = 0.0f;
+            try { 
+                double eval_time = std::max(0.0, current_sim_time_ - phi_lookaheads_[i]);
+                rob = driver_.get_online_rob(phi_names_[i], eval_time)[0]; 
+            } catch (...) {}
+            metrics_data.push_back(rob > 0 ? 1.0f : 0.0f);
+        }
 
         // --- 3. Package and Publish ---
         auto metrics_msg = std_msgs::msg::Float32MultiArray();
-        metrics_msg.data = {static_cast<float>(current_sim_time_), (rob1 > 0 ? 1.0f : 0.0f), (rob2 > 0 ? 1.0f : 0.0f)};
+        metrics_msg.data = metrics_data;
         metrics_pub_->publish(metrics_msg);
     }
 
     std::vector<double> waypoints_x_;
     std::vector<double> waypoints_y_;
     
+    std::vector<std::string> phi_names_;
+    std::vector<double> phi_lookaheads_;
+    
     rclcpp::Subscription<turtlesim::msg::Pose>::SharedPtr pose_sub_;
     rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr metrics_pub_;
     
-    STLRom::STLDriver driver_; // Single driver instance
-
+    STLRom::STLDriver driver_;
     bool was_in_zone_;
     double current_sim_time_;
 };

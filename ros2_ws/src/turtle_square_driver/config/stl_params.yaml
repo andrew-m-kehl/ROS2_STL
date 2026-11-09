@@ -1,6 +1,28 @@
+/**:
+  ros__parameters:
+    # Square 
+    waypoints_x: [2.5, 8.5, 8.5, 2.5]
+    waypoints_y: [2.5, 2.5, 8.5, 8.5]
+
+      # # Triangle
+      # waypoints_x: [2.0, 9.0, 5.5]
+      # waypoints_y: [2.0, 2.0, 9.0]
+
+      # # Star
+      # waypoints_x: [2.5, 5.5, 8.5, 2.0, 9.0]
+      # waypoints_y: [2.5, 9.0, 2.5, 7.0, 7.0]
+
 stl_processor:
-    ros__parameters:
-      step1_formula: |
-                      phi1 := in_bounds
-                      phi2 := ev_[0.0, 2.0] in_bounds 
-      #step2_formula: "phi2 := ev_[0.0, 2.0] in_bounds"
+  ros__parameters:
+    phi_names: ["phi1", "phi2", "phi3"]
+    
+    phi_formulas:
+      - "phi1 := in_bounds\n"
+      - "phi2 := ev_[0.0, 2.0] in_bounds\n"
+      - "phi3 := ev_[0.0, 2.0] (z0 or ev_[0.0, 2.0] z1)\n"
+      
+      
+      # - "phi4 := z0 and ev_[0.0, 2.0] (z1 and ev_[0.0, 2.0] (z2))\n"
+      # - "phi5 := z0 and ev_[0.0, 2.0] (z1 and ev_[0.0, 2.0] (z2 and ev_[0.0, 2.0] z3))\n"
+    
+    phi_lookaheads: [0.0, 2.0, 4.0]
