@@ -11,18 +11,22 @@
       # # Star
       # waypoints_x: [2.5, 5.5, 8.5, 2.0, 9.0]
       # waypoints_y: [2.5, 9.0, 2.5, 7.0, 7.0]
+    
+    
+    zone_radius: 0.5
+    time_increment: 0.016
+    pose_topic: "/turtle1/pose"
+    metrics_topic: "/stl_metrics"  
 
 stl_processor:
   ros__parameters:
-    phi_names: ["phi1", "phi2", "phi3"]
+    phi_names: ["phi1", "phi2", "phi3", "phi4"]
     
     phi_formulas:
       - "phi1 := in_bounds\n"
       - "phi2 := ev_[0.0, 2.0] in_bounds\n"
-      - "phi3 := ev_[0.0, 2.0] (z0 or ev_[0.0, 2.0] z1)\n"
-      
-      
-      # - "phi4 := z0 and ev_[0.0, 2.0] (z1 and ev_[0.0, 2.0] (z2))\n"
-      # - "phi5 := z0 and ev_[0.0, 2.0] (z1 and ev_[0.0, 2.0] (z2 and ev_[0.0, 2.0] z3))\n"
+      - "phi3 := z0 and ev_[0.0, 2.0] (z1)\n"
+      - "phi4 := z0 and ev_[0.0, 3.0] (z1 and ev_[0.0, 3.0] (z2 and ev_[0.0, 3.0] (z3 and ev_[0.0, 3.0] (z0))))\n"
+
     
-    phi_lookaheads: [0.0, 2.0, 4.0]
+    phi_lookaheads: [0.0, 2.0, 2.0, 12.0]
