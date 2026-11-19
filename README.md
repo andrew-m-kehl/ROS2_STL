@@ -34,39 +34,6 @@ ros2_ws/
     └── README.md
 ```
 
-```text
-
-       iRobot Create 3                 Turtlesim
-       nav_msgs/Odometry              turtlesim/Pose
-              |                            |
-              v                            v
-       +--------------+             +------------------+
-       | Odom Adapter |             | Turtlesim Adapter|
-       +--------------+             +------------------+
-              |                            |
-              |                            |
-              +------------+---------------+
-                           |
-                           v
-                      /stl_input
-                    Float64MultiArray
-                           |
-                           v
-                +----------------------+   +----------------------+ 
-                |  Generic Monitor     |   |    STL Evaluator     |
-                |        (C++)         |   |       (C++)          |
-                +----------------------+   +----------------------+
-                           |
-                           v
-                     STLRom C++ API
-                           |
-                           v
-                   Robustness Results
-                           |
-                           v
-                   /stl_robustness
-
-```
 ## 1. Build the STLRom Library
 Navigate to the STLRom directory and compile the engine from source:
 ```bash

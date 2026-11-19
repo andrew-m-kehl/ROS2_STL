@@ -39,13 +39,13 @@ def generate_launch_description():
         spawn_turtle2,
 
         # ==========================================
-        # PIPELINE 1: turtle1 (max_speed = 4.0)
+        # PIPELINE 1: turtle1 (max_speed = 7.0)
         # ==========================================
         Node(
             package='driver',
             executable='point_driver',
             name='point_driver_1',
-            parameters=[driver_waypoints, {'max_speed': 4.0}],
+            parameters=[driver_waypoints, {'max_speed': 7.0}],
             output='screen'
         ),
         Node(
@@ -91,13 +91,13 @@ def generate_launch_description():
         ),
 
         # ==========================================
-        # PIPELINE 2: turtle2 (max_speed = 6.0)
+        # PIPELINE 2: turtle2 (max_speed = 3.0)
         # ==========================================
         Node(
             package='driver',
             executable='point_driver',
             name='point_driver_2',
-            parameters=[driver_waypoints, {'max_speed': 6.0}],
+            parameters=[driver_waypoints, {'max_speed': 3.0}],
             remappings=[
                 ('/turtle1/pose', '/turtle2/pose'),
                 ('/turtle1/cmd_vel', '/turtle2/cmd_vel')
