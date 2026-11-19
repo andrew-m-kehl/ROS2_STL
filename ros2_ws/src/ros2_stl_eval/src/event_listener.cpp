@@ -28,7 +28,7 @@ private:
     static const char * state_to_str(int state)
     {
         if (state == 1)  return "SATISFIED";
-        if (state == -1) return "VIOLATED";
+        if (state == 0) return "VIOLATED";
         return "UNCERTAIN";
     }
 
@@ -58,7 +58,7 @@ private:
             if (low > 0.0) {
                 state = 1;  // SATISFIED
             } else if (up < 0.0) {
-                state = -1; // VIOLATED
+                state = 0; // VIOLATED
             }
 
             if (state != last_states_[i]) {

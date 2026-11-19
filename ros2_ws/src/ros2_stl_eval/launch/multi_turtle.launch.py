@@ -4,6 +4,7 @@ from launch import LaunchDescription
 from launch.actions import ExecuteProcess, TimerAction
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     driver_waypoints = os.path.join(
         get_package_share_directory('driver'), 'config', 'waypoints.yaml'
@@ -38,13 +39,13 @@ def generate_launch_description():
         spawn_turtle2,
 
         # ==========================================
-        # PIPELINE 1: turtle1
+        # PIPELINE 1: turtle1 (max_speed = 4.0)
         # ==========================================
         Node(
             package='driver',
             executable='point_driver',
             name='point_driver_1',
-            parameters=[driver_waypoints, {'max_speed': 2.0}],
+            parameters=[driver_waypoints, {'max_speed': 4.0}],
             output='screen'
         ),
         Node(
@@ -55,8 +56,8 @@ def generate_launch_description():
         ),
         Node(
             package='ros2_stl_eval',
-            executable='stl_processor',
-            name='stl_processor_1',
+            executable='generic_stl_monitor',
+            name='stl_monitor_1',
             parameters=[
                 yaml_params,
                 {
@@ -68,16 +69,29 @@ def generate_launch_description():
             output='screen'
         ),
         Node(
+            package='ros2_stl_eval',
+            executable='event_listener',
+            name='event_listener_1',
+            parameters=[
+                yaml_params,
+                {
+                    'metrics_topic': '/turtle1/stl_metrics',
+                    'verdicts_topic': '/turtle1/stl_verdicts'
+                }
+            ],
+            output='screen'
+        ),
+        Node(
             package='ros2_stl_eval_plotter',
             executable='stl_plotter',
             name='stl_plotter_1',
-            parameters=[yaml_params, {'metrics_topic': '/turtle1/stl_metrics'}],
-            remappings=[('/stl_metrics', '/turtle1/stl_metrics')],
+            parameters=[yaml_params, {'metrics_topic': '/turtle1/stl_verdicts'}],
+            remappings=[('/stl_metrics', '/turtle1/stl_verdicts')],
             output='screen'
         ),
 
         # ==========================================
-        # PIPELINE 2: turtle2
+        # PIPELINE 2: turtle2 (max_speed = 6.0)
         # ==========================================
         Node(
             package='driver',
@@ -101,8 +115,8 @@ def generate_launch_description():
         ),
         Node(
             package='ros2_stl_eval',
-            executable='stl_processor',
-            name='stl_processor_2',
+            executable='generic_stl_monitor',
+            name='stl_monitor_2',
             parameters=[
                 yaml_params,
                 {
@@ -114,11 +128,24 @@ def generate_launch_description():
             output='screen'
         ),
         Node(
+            package='ros2_stl_eval',
+            executable='event_listener',
+            name='event_listener_2',
+            parameters=[
+                yaml_params,
+                {
+                    'metrics_topic': '/turtle2/stl_metrics',
+                    'verdicts_topic': '/turtle2/stl_verdicts'
+                }
+            ],
+            output='screen'
+        ),
+        Node(
             package='ros2_stl_eval_plotter',
             executable='stl_plotter',
             name='stl_plotter_2',
-            parameters=[yaml_params, {'metrics_topic': '/turtle2/stl_metrics'}],
-            remappings=[('/stl_metrics', '/turtle2/stl_metrics')],
+            parameters=[yaml_params, {'metrics_topic': '/turtle2/stl_verdicts'}],
+            remappings=[('/stl_metrics', '/turtle2/stl_verdicts')],
             output='screen'
         ),
     ])
