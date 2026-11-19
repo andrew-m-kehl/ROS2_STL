@@ -34,6 +34,9 @@ ament_target_dependencies(stl_monitor rclcpp std_msgs)
 add_executable(generic_stl_monitor src/generic_stl_monitor.cpp)
 ament_target_dependencies(generic_stl_monitor rclcpp std_msgs)
 
+add_executable(event_listener src/event_listener.cpp)
+ament_target_dependencies(event_listener rclcpp std_msgs)
+
 add_executable(turtlesim_adapter src/turtlesim_adapter.cpp)
 ament_target_dependencies(turtlesim_adapter rclcpp std_msgs turtlesim geometry_msgs)
 
@@ -86,6 +89,7 @@ install(TARGETS
   generic_stl_monitor
   turtlesim_adapter
   odom_adapter
+  event_listener
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY 

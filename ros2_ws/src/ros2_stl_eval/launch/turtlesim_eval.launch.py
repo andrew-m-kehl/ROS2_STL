@@ -21,25 +21,29 @@ def generate_launch_description():
         ),
         Node(
             package='ros2_stl_eval',
-            executable='stl_processor',
-            name='stl_processor',
+            executable='generic_stl_monitor',
+            name='stl_monitor_node',
             parameters=[yaml_params, {'formula_file': stl_file_path}],
             output='screen'
         ),
 
         Node(
             package='ros2_stl_eval',
-            executable='stl_monitor',
-            name='in_bounds',
-            parameters=[yaml_params, {'formula_name': 'in_bounds'}],
-            remappings=[('/stl_robustness', '/stl_metrics/in_bounds')],
-            output='screen',
-            prefix=['gnome-terminal -- '] 
+            executable='event_listener',
+            name='event_listener',
+            parameters=[yaml_params, {
+                'metrics_topic': '/stl_metrics',
+                'verdicts_topic': '/stl_verdicts'
+            }],
+            output='screen'
         ),
 
         Node(
             package='ros2_stl_eval_plotter',
             executable='stl_plotter',
-            name='stl_plotter'
-        )
+            name='stl_plotter',
+            parameters=[yaml_params, {'metrics_topic': '/stl_verdicts'}],
+            remappings=[('/stl_metrics', '/stl_verdicts')],
+            output='screen'
+        ),
     ])

@@ -30,7 +30,7 @@ public:
         phi_lookaheads_ = this->declare_parameter<std::vector<double>>("phi_lookaheads", std::vector<double>{});
         
         publish_rate_ = this->declare_parameter<double>("publish_rate", 0.0);
-        bench_log_interval_ = this->declare_parameter<int>("bench_log_interval", 1);
+        bench_log_interval_ = this->declare_parameter<int>("bench_log_interval", 500);
 
         // 2. Validate parameters
         if (formula_file_.empty()) {
@@ -119,7 +119,7 @@ private:
     std::vector<double> phi_lookaheads_;
     double publish_rate_{0.0};
     double max_lookahead_{0.0};
-    int bench_log_interval_{1};
+    int bench_log_interval_{500};
 
     // ROS interfaces
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr

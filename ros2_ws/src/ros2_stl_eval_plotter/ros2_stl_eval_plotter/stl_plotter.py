@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float64MultiArray
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
@@ -11,7 +11,7 @@ class STLPlotter(Node):
     def __init__(self):
         super().__init__('stl_plotter')
         self.subscription = self.create_subscription(
-            Float32MultiArray, '/stl_metrics', self.metrics_callback, 10)
+            Float64MultiArray, '/stl_metrics', self.metrics_callback, 10)
         self.num_formulas = 0
         self.time_data = []
         self.sat_data = [] # Will become a list of lists once we know how many formulas exist
