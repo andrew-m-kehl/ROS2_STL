@@ -5,7 +5,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+# ROS2 dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(turtlesim REQUIRED)
@@ -30,6 +30,9 @@ ament_target_dependencies(stl_processor rclcpp std_msgs)
 
 add_executable(stl_monitor src/stl_monitor.cpp)
 ament_target_dependencies(stl_monitor rclcpp std_msgs)
+
+add_executable(generic_stl_monitor src/generic_stl_monitor.cpp)
+ament_target_dependencies(generic_stl_monitor rclcpp std_msgs)
 
 add_executable(turtlesim_adapter src/turtlesim_adapter.cpp)
 ament_target_dependencies(turtlesim_adapter rclcpp std_msgs turtlesim geometry_msgs)
@@ -63,10 +66,24 @@ target_link_directories(stl_monitor PUBLIC
 target_link_libraries(stl_monitor stlromlib)
 set_target_properties(stl_monitor PROPERTIES INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/STLRom/build")
 
+# Link the external STLRom Engine using dynamic relative paths
+target_include_directories(generic_stl_monitor SYSTEM PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/STLRom/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/STLRom/build"
+)
+
+target_link_directories(generic_stl_monitor PUBLIC
+  "${CMAKE_CURRENT_SOURCE_DIR}/STLRom/build"
+)
+
+target_link_libraries(generic_stl_monitor stlromlib)
+set_target_properties(generic_stl_monitor PROPERTIES INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/STLRom/build")
+
 # Install rules
 install(TARGETS 
   stl_processor
   stl_monitor
+  generic_stl_monitor
   turtlesim_adapter
   odom_adapter
   DESTINATION lib/${PROJECT_NAME})

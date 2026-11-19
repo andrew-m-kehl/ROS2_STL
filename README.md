@@ -18,28 +18,18 @@ ros2_ws/
     │   └── package.xml
     ├── ros2_stl_eval/
     │   ├── config/
-    │   │   └── stl_params.yaml
+    │   │   ├── stl_params.yaml
+    │   │   └── formulas.stl
     │   ├── launch/
     │   │   ├── odom_eval.launch.py
     │   │   └── point_eval.launch.py
     │   ├── src/
     │   │   ├── odom_adapter.cpp
-    │   │   ├── stl_monitor.cpp
-    │   │   ├── stl_processor.cpp
-    │   │   └── turtlesim_adapter.cpp
+    │   │   ├── turtlesim_adapter.cpp 
+    │   │   └── generic_stl_monitor.cpp
     │   ├── STLRom/
     │   ├── CMakeLists.txt
     │   └── package.xml
-    ├── ros2_stl_eval_plotter/
-    │   ├── resource/
-    │   ├── ros2_stl_eval_plotter/
-    │   │   ├── __pycache__/
-    │   │   ├── __init__.py
-    │   │   └── stl_plotter.py
-    │   ├── test/
-    │   ├── package.xml
-    │   ├── setup.cfg
-    │   └── setup.py
     ├── .gitignore
     └── README.md
 ```
