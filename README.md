@@ -1,51 +1,51 @@
-# ROS 2 Temporal Logic (STL) Waypoint Driver
+# Online STL Monitoring and Benchmarking in ROS 2
 
-A modular ROS 2 architecture integrating the STLRom C++ engine to evaluate Signal Temporal Logic (STL) formulas in real-time against dynamic waypoints in TurtleSim.
+A modular ROS 2 architecture integrating the STLRom C++ engine to evaluate Signal Temporal Logic (STL) formulas in real-time. This repository contains launch files for turtlesim as well as the Create3 Robot
 
 ## File system archetecture:
-
+```text
 ros2_ws/
 └── src/
-    │
-    ├── driver
-    │   ├── launch
-    │   │   ├── odom_driver.launch.py
-    │   │   └── point_driver.launch.py 
-    │   ├── src/ 
-    │   │   ├── point_driver.cpp
-    │   │   └── odom_driver.cpp
+    ├── driver/
     │   ├── include/
+    │   ├── launch/
+    │   │   ├── odom_driver.launch.py
+    │   │   └── point_driver.launch.py
+    │   ├── src/
+    │   │   ├── odom_driver.cpp
+    │   │   └── point_driver.cpp
     │   ├── CMakeLists.txt
     │   └── package.xml
-    │
     ├── ros2_stl_eval/
-    │    ├── config
-    │    │   └── stl_params.yaml 
-    │    ├── launch
-    │    │   ├── odom_eval.launch.py
-    │    │   └── point_eval.launch.py 
-    │    ├── src/
-    │    │   ├── stl_processor.cpp
-    │    │   ├── stl_monitor.cpp
-    │    │   ├── odom_adapter.cpp
-    │    │   └── turtlesim_adapter.cpp
-    │    ├── STLRom
-    │    ├── CMakeLists.txt
-    │    └── package.xml
-    ├── ros2_stl_eval_plotter
-    │    ├── resource
-    │    ├── ros2_stl_eval_plotter        
-    │    │    ├── __pychache__
-    │    │    ├── __init__.py
-    │    │    └──stl_plotter.py
-    │    ├── test
-    │    ├── package.xml
-    │    ├── setup.cfg
-    │    └── setup.py
+    │   ├── config/
+    │   │   └── stl_params.yaml
+    │   ├── launch/
+    │   │   ├── odom_eval.launch.py
+    │   │   └── point_eval.launch.py
+    │   ├── src/
+    │   │   ├── odom_adapter.cpp
+    │   │   ├── stl_monitor.cpp
+    │   │   ├── stl_processor.cpp
+    │   │   └── turtlesim_adapter.cpp
+    │   ├── STLRom/
+    │   ├── CMakeLists.txt
+    │   └── package.xml
+    ├── ros2_stl_eval_plotter/
+    │   ├── resource/
+    │   ├── ros2_stl_eval_plotter/
+    │   │   ├── __pycache__/
+    │   │   ├── __init__.py
+    │   │   └── stl_plotter.py
+    │   ├── test/
+    │   ├── package.xml
+    │   ├── setup.cfg
+    │   └── setup.py
     ├── .gitignore
     └── README.md
+```
 
 ```text
+
        iRobot Create 3                 Turtlesim
        nav_msgs/Odometry              turtlesim/Pose
               |                            |
@@ -62,10 +62,10 @@ ros2_ws/
                     Float64MultiArray
                            |
                            v
-                +----------------------+
-                |  Generic STL Monitor |
-                |        (C++)         |
-                +----------------------+
+                +----------------------+   +----------------------+ 
+                |  Generic Monitor     |   |    STL Evaluator     |
+                |        (C++)         |   |       (C++)          |
+                +----------------------+   +----------------------+
                            |
                            v
                      STLRom C++ API
@@ -75,8 +75,8 @@ ros2_ws/
                            |
                            v
                    /stl_robustness
-```
 
+```
 ## 1. Build the STLRom Library
 Navigate to the STLRom directory and compile the engine from source:
 ```bash
