@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    # Global Config
+    input_topic: "/stl_input"
+    metrics_topic: "/stl_metrics" 
+    signal_names: ["x", "y", "v"]
+    
+    # STL Formulas
+    phi_names: ["is_moving", "in_bounds", "is_fast_enough", "all_nodes"]
+   
+    phi_lookaheads: [0.0, 0.0, 2.0, 12.0]

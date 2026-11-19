@@ -1,0 +1,14 @@
+# signals
+signal x, y, v
+
+# Corner Zones (0.5 radius around 2.5 and 8.5)
+c0 := (x[t] > 2.0 and x[t] < 3.0) and (y[t] > 2.0 and y[t] < 3.0)
+c1 := (x[t] > 8.0 and x[t] < 9.0) and (y[t] > 2.0 and y[t] < 3.0)
+c2 := (x[t] > 8.0 and x[t] < 9.0) and (y[t] > 8.0 and y[t] < 9.0)
+c3 := (x[t] > 2.0 and x[t] < 3.0) and (y[t] > 8.0 and y[t] < 9.0)
+
+# Basic bounding logic & formulas
+in_bounds := c0 or c1 or c2 or c3
+is_moving := v[t] > 0.01
+is_fast_enough := ev_[0.0, 2.0] in_bounds
+all_nodes := c0 and ev_[0.0, 3.0] (c1 and ev_[0.0, 3.0] (c2 and ev_[0.0, 3.0] (c3 and ev_[0.0, 3.0] (c0))))

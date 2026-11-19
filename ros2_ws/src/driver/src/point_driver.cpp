@@ -1,3 +1,22 @@
+/*
+Point Driver: 
+A geometric waypoint driver that moves a turtlesim robot sequentially through a list of provided X/Y coordinates, calculating the angles and speed to reach each point. 
+
+Inputs:
+    Topic: /turtle1/pose -  Subscriber: turtlesim::msg::Pose - Receives the turtlesims current position, orientation and velocity.
+      	   /manual_override - Subscriber: std_msgs::msg::Bool - Boolean to determine automation or manual control. 
+      		    
+      
+    Parameters: waypoints_x, waypoints_y
+
+Outputs:
+    Topic: /turtle1/cmd_vel - Publisher: geometry_msgs::msg::Twist - Velocity commands.
+     
+To launch:
+ros2 run driver point_driver --ros-args -p waypoints_x:="[2.0, 8.0, 8.0, 2.0]" 
+                                        -p waypoints_y:="[2.0, 2.0, 8.0, 8.0]"
+*/
+
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <turtlesim/msg/pose.hpp>
@@ -7,21 +26,21 @@
 
 using namespace std::chrono_literals;
 
-#define MAXSPEED 6
-
 struct Point {
     double x, y;
 };
 
-class TurtleSquareDriver : public rclcpp::Node {
+class PointDriver : public rclcpp::Node {
 public:
-    TurtleSquareDriver() : Node("square_driver"), current_waypoint_(0), is_manual_(false) {
+    PointDriver() : Node("point_driver"), current_waypoint_(0), is_manual_(false) {
         
         this->declare_parameter("waypoints_x", std::vector<double>{});
         this->declare_parameter("waypoints_y", std::vector<double>{});
-
+        this->declare_parameter("max_speed", 4.0);
+        
         std::vector<double> wx = this->get_parameter("waypoints_x").as_double_array();
         std::vector<double> wy = this->get_parameter("waypoints_y").as_double_array();
+        max_speed_ = this->get_parameter("max_speed").as_double();
 
         for (size_t i = 0; i < wx.size() && i < wy.size(); ++i) {
             waypoints_.push_back({wx[i], wy[i]});
@@ -29,14 +48,14 @@ public:
  
         publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("turtle1/cmd_vel", 10);
         subscriber_ = this->create_subscription<turtlesim::msg::Pose>(
-            "turtle1/pose", 10, std::bind(&TurtleSquareDriver::pose_callback, this, std::placeholders::_1));
+            "turtle1/pose", 10, std::bind(&PointDriver::pose_callback, this, std::placeholders::_1));
             
         // Subscribe to manual override state
         override_sub_ = this->create_subscription<std_msgs::msg::Bool>(
-            "/manual_override", 10, std::bind(&TurtleSquareDriver::override_callback, this, std::placeholders::_1));
+            "/manual_override", 10, std::bind(&PointDriver::override_callback, this, std::placeholders::_1));
 
         // Control loop timer (50 Hz)
-        timer_ = this->create_wall_timer(20ms, std::bind(&TurtleSquareDriver::control_loop, this));
+        timer_ = this->create_wall_timer(20ms, std::bind(&PointDriver::control_loop, this));
         
         RCLCPP_INFO(this->get_logger(), "Waypoint Driver Started! Waiting for TurtleSim to spawn...");
     }
@@ -44,6 +63,7 @@ public:
 private:
     std::vector<Point> waypoints_;
     size_t current_waypoint_;
+    double max_speed_;
     
     turtlesim::msg::Pose current_pose_;
     bool pose_received_ = false;
@@ -101,7 +121,7 @@ private:
         
         if (std::fabs(angle_diff) < 0.2) {
             twist.linear.x = 1.5 * distance;
-            if (twist.linear.x > MAXSPEED) twist.linear.x = MAXSPEED; 
+            if (twist.linear.x > max_speed_) twist.linear.x = max_speed_; 
         } 
         else {
             twist.linear.x = 0.0;
@@ -113,7 +133,7 @@ private:
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<TurtleSquareDriver>();
+    auto node = std::make_shared<PointDriver>();
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
