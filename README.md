@@ -18,22 +18,78 @@ ros2_ws/
     │   └── package.xml
     ├── ros2_stl_eval/
     │   ├── config/
-    │   │   ├── stl_params.yaml
-    │   │   └── formulas.stl
+    │   │   └── stl_params.yaml
     │   ├── launch/
     │   │   ├── odom_eval.launch.py
     │   │   └── point_eval.launch.py
     │   ├── src/
+    │   │   ├── turtlesim_adapter.cpp
     │   │   ├── odom_adapter.cpp
-    │   │   ├── turtlesim_adapter.cpp 
-    │   │   └── generic_stl_monitor.cpp
+    │   │   ├── generic_stl_monitor.cpp
+    │   │   └── event_listener.cpp
     │   ├── STLRom/
     │   ├── CMakeLists.txt
     │   └── package.xml
+    ├── ros2_stl_eval_plotter/
+    │   ├── resource/
+    │   ├── ros2_stl_eval_plotter/
+    │   │   ├── __pycache__/
+    │   │   ├── __init__.py
+    │   │   └── stl_plotter.py
+    │   ├── test/
+    │   ├── package.xml
+    │   ├── setup.cfg
+    │   └── setup.py
     ├── .gitignore
     └── README.md
 ```
 
+```text
+
+       iRobot Create 3                 Turtlesim
+       nav_msgs/Odometry              turtlesim/Pose
+              |                            |
+              v                            v
+       +--------------+             +------------------+
+       | Odom Adapter |             | Turtlesim Adapter|
+       +--------------+             +------------------+
+              |                            |
+              |                            |
+              +------------+---------------+
+                           |
+                           v
+                      /stl_input
+                    Float64MultiArray
+                           |
+                           v
+                +----------------------+ 
+                |  Generic Monitor     |
+                |        (C++)         |   
+                +----------------------+   
+                           |
+                           v
+                     STLRom C++ API
+                           |
+                           v
+                   Robustness Results
+                           |
+                           v
+                   /stl_robustness
+                           |
+                           v
+                +----------------------+ 
+                |    Event Listener    |
+                |       (C++)          |
+                +----------------------+
+                           |
+                           v
+                +----------------------+ 
+                |    STL Plotter       |
+                |       (C++)          |
+                +----------------------+
+
+
+```
 ## 1. Build the STLRom Library
 Navigate to the STLRom directory and compile the engine from source:
 ```bash
@@ -68,7 +124,7 @@ then
 source install/setup.bash
 ```
 
-## 3. Launch the system.
+## 3. Launch the system using Launch files.
 
 Launch the evaluator and plotter:
 In Terminal 1:
@@ -76,88 +132,47 @@ In Terminal 1:
 ```bash
 ros2 launch ros2_stl_eval turtlesim_eval.launch.py
 ```
+
 Launch the driver:
 In Terminal 2:
 ```bash
 ros2 launch driver point_driver.launch.py
 ```
 
-Launch the Monitor:
+
+
+### 3.1a. Launch the system individually.
+
+In terminal 1:
+```bash
+ros2 run ros2_stl_eval turtlesim_adapter
+```
+
+In terminal 2:
+```bash
+ros2 run ros2_stl_eval generic_stl_monitor --ros-args \
+       --params-file ~/Desktop/CodingFiles/ROS2_STL/ros2_ws/src/ros2_stl_eval/config/stl_params.yaml \
+       -p formula_file:=/home/Andy/Desktop/CodingFiles/ROS2_STL/ros2_ws/src/ros2_stl_eval/config/formulas.stl
+```
 In Terminal 3:
 ```bash
-ros2 run ros2_stl_eval stl_monitor --ros-args -p formula_file:="/home/Andy/Desktop/CodingFiles/ROS2_STL/ros2_ws/src/ros2_stl_eval/config/formulas.stl" -p formula_name:="in_bounds" -p signal_names:="x,y,v" -p window:=2.0
+ros2 run ros2_stl_eval event_listener
 ```
 
-### 3.1a. Launch the evaluator.
-
-In terminal 1:
-
+In Terminal 4:
 ```bash
-ros2 run ros2_stl_eval stl_processor --ros-args -p waypoints_x:=[2.0, 8.0, 8.0, 2.0]"
-                                                -p waypoints_y:="[2.0, 2.0, 8.0, 8.0]" 
-                                                -p zone_radius:=0.5 
-                                                -p input_topic:="/stl_input" 
-                                                -p metrics_topic:="/stl_metrics" 
-                                                -p signal_names:="['x', 'y', 'v']" 
-                                                -p phi_names:="['phi_vel']" 
-                                                -p phi_formulas:="['phi_vel := alw_[0.0, 2.0] (v[t] < 3.0)\n']" 
-                                                -p phi_lookaheads:="[2.0]"
+ros2 run ros2_stl_eval_plotter stl_plotter
 ```
 
-### 3.1b. Launch the plotter.
-In terminal 2:
-
-```bash
-ros2 run ros2_stl_eval_plotter stl_plotter --ros-args -p metrics_topic:="/stl_metrics" 
-                                                      -p phi_names:="['phi1', 'phi2', 'phi_vel']"
-```
-
-### 3.2a. Launch a turtle.
-
-In terminal 3:
-
-```bash
-ros2 run turtlesim turtlesim_node
-```
-
-### 3.2b. Launch the driver program (point-based or odometry-based).
-
-In terminal 4:
-
-```bash
-ros2 run driver point_driver --ros-args -p waypoints_x:="[2.0, 8.0, 8.0, 2.0]" 
-                                        -p waypoints_y:="[2.0, 2.0, 8.0, 8.0]"
-```
-or
-```bash
-ros2 run driver odom_driver --ros-args -p waypoints_x:="[2.0, 8.0, 8.0, 2.0]" 
-                                       -p waypoints_y:="[2.0, 2.0, 8.0, 8.0]"
-```
-### 3.2c. Launch the manual driver
-
-## Using Launch Files
-
-### Alternativly for 3.1a & 3.1b, use the Launch File for evaluator and plotter.
-In terminal 1:
-```bash
-ros2 launch ros2_stl_eval turtlesim_eval.launch.py
-```
-
-### 5.ab. Alternativly for 4.2a and 4.2b, use the launch file for turtle and driver 
-#### Point-based 
-
-In terminal 2:
+In Terminal 5:
 ```bash
 ros2 launch driver point_driver.launch.py
 ```
-or
-#### Odometry-based
-In terminal 2:
-```bash
-ros2 launch driver odom_driver.launch.py
-```
 
-If the plotter file somehow gets lost:
+
+
+
+### If the plotter file somehow gets lost:
 ```bash
 chmod +x src/turtle_square_driver/src/stl_plotter.py
 ```
